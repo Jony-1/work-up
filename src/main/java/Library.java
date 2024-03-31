@@ -6,8 +6,8 @@ import javax.swing.JPanel;
 
 public class Library {
         public static void main(String[] args) {
-            // Crear un nuevo marco (ventana)
-            JFrame frame = new JFrame("Interfaz Sencilla");
+            // (ventana)
+            JFrame frame = new JFrame("Work-up");
             frame.setSize(300, 200); // Establecer el tamaño de la ventana
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Para cerrar la aplicación cuando se cierra la ventana
 
@@ -20,7 +20,7 @@ public class Library {
             // Agregar un evento de clic al botón
             button.addActionListener(e -> {
                 // Mostrar un mensaje de diálogo
-                JOptionPane.showMessageDialog(frame, "¡Has hecho clic en el botón!");
+                JOptionPane.showMessageDialog(frame, "¡Bienvenido!!!");
             });
 
             // Agregar el botón al panel
