@@ -1,37 +1,182 @@
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Library {
-        public static void main(String[] args) {
-            // (ventana)
-            JFrame frame = new JFrame("Work-up");
-            frame.setSize(300, 200); // Establecer el tamaño de la ventana
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Para cerrar la aplicación cuando se cierra la ventana
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LibraryGUI gui = new LibraryGUI();
+            gui.showGUI();
+        });
+    }
+}
 
-            // Crear un panel
-            JPanel panel = new JPanel();
+class LibraryGUI {
+    private JFrame frame;
+    private JPanel panel;
+    private JMenuBar menuBar;
+    private JMenu fileMenu;
+    private JMenu viewMenu;
+    private JMenuItem exitItem;
+    private JMenuItem searchItem;
+    private JMenuItem insertItem;
+    private JButton searchButton;
+    private JTextField searchField;
+    private JButton insertButton;
+    private JTextField titleField;
+    private JTextField authorField;
+    private JTextField genreField;
+    private JTextField yearField;
+    private LibraryDatabase database;
 
-            // Crear un botón
-            JButton button = new JButton("Haz clic aquí");
+    public LibraryGUI() {
+        frame = new JFrame("Work-up");
+        frame.setSize(500, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            // Agregar un evento de clic al botón
-            button.addActionListener(e -> {
-                // Mostrar un mensaje de diálogo
-                JOptionPane.showMessageDialog(frame, "¡Bienvenido!!!");
-            });
+        panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2));
 
-            // Agregar el botón al panel
-            panel.add(button);
+        menuBar = new JMenuBar();
+        fileMenu = new JMenu("Archivo");
+        viewMenu = new JMenu("Ver");
+        exitItem = new JMenuItem("Salir");
+        searchItem = new JMenuItem("Buscar libro");
+        insertItem = new JMenuItem("Insertar libro");
+        fileMenu.add(exitItem);
+        viewMenu.add(searchItem);
+        viewMenu.add(insertItem);
+        menuBar.add(fileMenu);
+        menuBar.add(viewMenu);
+        frame.setJMenuBar(menuBar);
 
-            // Agregar el panel al marco
-            frame.add(panel);
+        searchButton = new JButton("Buscar libro");
+        searchField = new JTextField(20);
+        panel.add(searchButton);
+        panel.add(searchField);
 
-            // Hacer visible el marco
-            frame.setVisible(true);
+        titleField = new JTextField(20);
+        authorField = new JTextField(20);
+        genreField = new JTextField(20);
+        yearField = new JTextField(20);
+        insertButton = new JButton("Insertar libro");
+        panel.add(new JLabel("Título: "));
+        panel.add(titleField);
+        panel.add(new JLabel("Autor: "));
+        panel.add(authorField);
+        panel.add(new JLabel("Género: "));
+        panel.add(genreField);
+        panel.add(new JLabel("Año: "));
+        panel.add(yearField);
+        panel.add(insertButton);
+
+        frame.add(panel);
+
+        database = new LibraryDatabase();
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Implementar la lógica de búsqueda de libros aquí
+                JOptionPane.showMessageDialog(frame, "Función de búsqueda aún no implementada");
+            }
+        });
+
+        insertButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String title = titleField.getText();
+                String author = authorField.getText();
+                String genre = genreField.getText();
+                int year = Integer.parseInt(yearField.getText());
+
+                Book newBook = new Book(title, author, genre, year);
+                database.insertBook(newBook);
+
+                // Limpiar los campos de entrada después de la inserción
+                titleField.setText("");
+                authorField.setText("");
+                genreField.setText("");
+                yearField.setText("");
+
+                // Proporcionar retroalimentación al usuario, por ejemplo, mostrar un diálogo de mensaje
+                JOptionPane.showMessageDialog(frame, "Libro insertado exitosamente");
+            }
+        });
+    }
+
+    public void showGUI() {
+        frame.setVisible(true);
+    }
+}
+
+class Book {
+    private String title;
+    private String author;
+    private String genre;
+    private int year;
+
+    public Book(String title, String author, String genre, int year) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.year = year;
+    }
+
+    // Getters and setters
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+}
+
+class LibraryDatabase {
+    private Book[] books;
+    private int bookCount;
+
+    public LibraryDatabase() {
+        books = new Book[100]; // Suponiendo un máximo de 100 libros inicialmente
+        bookCount = 0;
+    }
+
+    public void insertBook(Book book) {
+        if (bookCount < books.length) {
+            books[bookCount] = book;
+            bookCount++;
+        } else {
+            // Manejar el caso cuando el arreglo está lleno, por ejemplo, redimensionar el arreglo
         }
+    }
 
-
+    public Book[] getBooks() {
+        return books;
+    }
 }
