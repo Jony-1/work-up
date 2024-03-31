@@ -21,6 +21,12 @@ class LibraryGUI {
     private JMenuItem exitItem;
     private JMenuItem searchItem;
     private JMenuItem insertItem;
+    private JMenuItem updatetItem;
+    private CardLayout cardLayout;
+    private JPanel cards;
+    private JPanel searchPanel;
+    private JPanel insertPanel;
+    private JPanel updatePanel;
     private JButton searchButton;
     private JTextField searchField;
     private JButton insertButton;
@@ -31,46 +37,49 @@ class LibraryGUI {
     private LibraryDatabase database;
 
     public LibraryGUI() {
-        frame = new JFrame("Work-up");
+        frame = new JFrame("Work-up libreria");
         frame.setSize(500, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2));
+        panel.setLayout(new GridLayout(1, 1));
 
-        menuBar = new JMenuBar();
-        fileMenu = new JMenu("Archivo");
-        viewMenu = new JMenu("Ver");
-        exitItem = new JMenuItem("Salir");
-        searchItem = new JMenuItem("Buscar libro");
-        insertItem = new JMenuItem("Insertar libro");
-        fileMenu.add(exitItem);
-        viewMenu.add(searchItem);
-        viewMenu.add(insertItem);
-        menuBar.add(fileMenu);
-        menuBar.add(viewMenu);
-        frame.setJMenuBar(menuBar);
+        cardLayout = new CardLayout();
+        cards = new JPanel(cardLayout);
 
+        searchPanel = new JPanel();
+        searchPanel.setLayout(new FlowLayout());
         searchButton = new JButton("Buscar libro");
         searchField = new JTextField(20);
-        panel.add(searchButton);
-        panel.add(searchField);
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
 
+        updatePanel = new JPanel();
+        updatePanel.setLayout(new GridLayout( 2, 2));
+
+
+        insertPanel = new JPanel();
+        insertPanel.setLayout(new GridLayout(4, 2));
         titleField = new JTextField(20);
         authorField = new JTextField(20);
         genreField = new JTextField(20);
         yearField = new JTextField(20);
         insertButton = new JButton("Insertar libro");
-        panel.add(new JLabel("Título: "));
-        panel.add(titleField);
-        panel.add(new JLabel("Autor: "));
-        panel.add(authorField);
-        panel.add(new JLabel("Género: "));
-        panel.add(genreField);
-        panel.add(new JLabel("Año: "));
-        panel.add(yearField);
-        panel.add(insertButton);
+        insertPanel.add(new JLabel("Título: "));
+        insertPanel.add(titleField);
+        insertPanel.add(new JLabel("Autor: "));
+        insertPanel.add(authorField);
+        insertPanel.add(new JLabel("Género: "));
+        insertPanel.add(genreField);
+        insertPanel.add(new JLabel("Año: "));
+        insertPanel.add(yearField);
+        insertPanel.add(insertButton);
 
+        cards.add(searchPanel, "Buscar libro");
+        cards.add(insertPanel, "Insertar libro");
+        cards.add(updatePanel, "Actualizar libro");
+
+        panel.add(cards);
         frame.add(panel);
 
         database = new LibraryDatabase();
@@ -102,6 +111,35 @@ class LibraryGUI {
 
                 // Proporcionar retroalimentación al usuario, por ejemplo, mostrar un diálogo de mensaje
                 JOptionPane.showMessageDialog(frame, "Libro insertado exitosamente");
+            }
+        });
+
+        menuBar = new JMenuBar();
+        fileMenu = new JMenu("Archivo");
+        viewMenu = new JMenu("Ver");
+        exitItem = new JMenuItem("Salir");
+        searchItem = new JMenuItem("Buscar libro");
+        insertItem = new JMenuItem("Insertar libro");
+        updatetItem = new JMenuItem("actualizar libro");
+        fileMenu.add(exitItem);
+        viewMenu.add(searchItem);
+        viewMenu.add(insertItem);
+        viewMenu.add(updatetItem);
+        menuBar.add(fileMenu);
+        menuBar.add(viewMenu);
+        frame.setJMenuBar(menuBar);
+
+        searchItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cards, "Buscar libro");
+            }
+        });
+
+        insertItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cards, "Insertar libro");
             }
         });
     }
