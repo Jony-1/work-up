@@ -111,7 +111,7 @@ class LibraryGUI {
 
         // Menús
         menuBar = new JMenuBar();
-        fileMenu = new JMenu("Archivo");
+        fileMenu = new JMenu("ayuda");
         exitItem = new JMenuItem("Salir");
 
         userMenu = new JMenu("Usuario");
