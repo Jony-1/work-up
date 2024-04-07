@@ -131,7 +131,7 @@ class LibraryGUI {
         deleteUserItem = new JMenuItem("Eliminar usuario");
 
         //menu de ver
-        viewMenu = new JMenu("Ver");
+        viewMenu = new JMenu("Libros");
         searchItem = new JMenuItem("Buscar libro");
         insertItem = new JMenuItem("Insertar libro");
         updateItem = new JMenuItem("actualizar libro");
