@@ -18,10 +18,14 @@ class LibraryGUI {
     private JMenuBar menuBar;
     private JMenu fileMenu;
     private JMenu viewMenu;
+    private JMenu userMenu;
     private JMenuItem exitItem;
     private JMenuItem searchItem;
     private JMenuItem insertItem;
-    private JMenuItem updatetItem;
+    private JMenuItem updateItem;
+    private JMenuItem insertUserItem;
+    private JMenuItem updateUserItem;
+    private JMenuItem deleteUserItem;
     private CardLayout cardLayout;
     private JPanel cards;
     private JPanel searchPanel;
@@ -38,7 +42,7 @@ class LibraryGUI {
 
     public LibraryGUI() {
         frame = new JFrame("Work-up libreria");
-        frame.setSize(500, 300);
+        frame.setSize(600, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         panel = new JPanel();
@@ -59,11 +63,11 @@ class LibraryGUI {
 
 
         insertPanel = new JPanel();
-        insertPanel.setLayout(new GridLayout(4, 2));
-        titleField = new JTextField(20);
-        authorField = new JTextField(20);
-        genreField = new JTextField(20);
-        yearField = new JTextField(20);
+        insertPanel.setLayout(new GridLayout(5, 6));
+        titleField = new JTextField(1);
+        authorField = new JTextField(1);
+        genreField = new JTextField(1);
+        yearField = new JTextField(1);
         insertButton = new JButton("Insertar libro");
         insertPanel.add(new JLabel("Título: "));
         insertPanel.add(titleField);
@@ -78,6 +82,7 @@ class LibraryGUI {
         cards.add(searchPanel, "Buscar libro");
         cards.add(insertPanel, "Insertar libro");
         cards.add(updatePanel, "Actualizar libro");
+
 
         panel.add(cards);
         frame.add(panel);
@@ -114,18 +119,34 @@ class LibraryGUI {
             }
         });
 
+        //menu de archivo
         menuBar = new JMenuBar();
         fileMenu = new JMenu("Archivo");
-        viewMenu = new JMenu("Ver");
         exitItem = new JMenuItem("Salir");
+
+        //menu de usuario
+        userMenu = new JMenu("Usuario");
+        insertUserItem = new JMenuItem("Insertar usuario");
+        updateUserItem = new JMenuItem("Actualizar usuario");
+        deleteUserItem = new JMenuItem("Eliminar usuario");
+
+        //menu de ver
+        viewMenu = new JMenu("Ver");
         searchItem = new JMenuItem("Buscar libro");
         insertItem = new JMenuItem("Insertar libro");
-        updatetItem = new JMenuItem("actualizar libro");
+        updateItem = new JMenuItem("actualizar libro");
+
         fileMenu.add(exitItem);
         viewMenu.add(searchItem);
         viewMenu.add(insertItem);
-        viewMenu.add(updatetItem);
+        viewMenu.add(updateItem);
+
+        userMenu.add(insertUserItem);
+        userMenu.add(updateUserItem);
+        userMenu.add(deleteUserItem);
+
         menuBar.add(fileMenu);
+        menuBar.add(userMenu);
         menuBar.add(viewMenu);
         frame.setJMenuBar(menuBar);
 
