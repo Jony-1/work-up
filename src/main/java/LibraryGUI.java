@@ -132,7 +132,7 @@ class LibraryGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String searchTerm = searchField.getText();
-                ArrayList<Book> foundBooks = database.searchBooks(searchTerm);
+                ListNode foundBooks = database.searchBooks(searchTerm);
                 displayBooks(foundBooks);
             }
         });
@@ -152,16 +152,17 @@ class LibraryGUI {
             }
         });
 
-
-        //user
+       /*
         searchUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String searchUserTerm = searchUserField.getText();
-                ArrayList<User> foundUsers = userdatabase.searchUsers(searchUserTerm);
+                ListNode foundUsers = userdatabase.searchUsers(searchUserTerm);
                 displayUsers(foundUsers);
             }
         });
+
+
         insertUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -175,6 +176,8 @@ class LibraryGUI {
                 JOptionPane.showMessageDialog(frame, "Usuario insertado exitosamente");
             }
         });
+
+        */
 
         // Menús
         menuBar = new JMenuBar();
@@ -241,23 +244,15 @@ class LibraryGUI {
 
 
 
-        //vista usuario
-        viewUsersItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ArrayList<User> allUsers = userdatabase.getAllUsers();
-                displayUsers(allUsers);
-            }
-        });
-
         //vista libro
         viewBooksItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<Book> allBooks = database.getAllBooks();
+                ListNode allBooks = database.getAllBooks();
                 displayBooks(allBooks);
             }
         });
+
     }
 
 
@@ -285,15 +280,18 @@ class LibraryGUI {
     }
 
 
-    private void displayBooks(ArrayList<Book> books) {
+    private void displayBooks(ListNode books) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Título");
         model.addColumn("Autor");
         model.addColumn("Género");
         model.addColumn("Año");
 
-        for (Book book : books) {
+        ListNode current = books;
+        while (current != null) {
+            Book book = current.getBook();
             model.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getGenre(), book.getYear()});
+            current = current.getNext();
         }
 
         if (bookTable == null) {
@@ -310,12 +308,17 @@ class LibraryGUI {
         cardLayout.show(cards, "Consultar libros");
     }
 
-    public void showGUI() {
-        frame.setVisible(true);
-    }
+
 
     public static void main(String[] args) {
         LibraryGUI libraryGUI = new LibraryGUI();
         libraryGUI.showGUI();
     }
+
+
+    public void showGUI() {
+        frame.setVisible(true);
+    }
+
+
 }
