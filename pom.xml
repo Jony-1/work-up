@@ -20,27 +20,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.17.0</version> <!-- Reemplaza con la última versión disponible -->
         </dependency>
-
-        <!-- Dependencia para Kafka -->
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>3.7.0</version>
-        </dependency>
-
-        <!-- Dependencia para procesamiento JSON -->
-        <dependency>
-            <groupId>javax.json</groupId>
-            <artifactId>javax.json-api</artifactId>
-            <version>1.1.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-            <version>1.1.4</version>
-            <scope>runtime</scope>
-        </dependency>
         <!-- no quitar -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -51,16 +30,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.0-alpha1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
-            <version>3.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
         </dependency>
     </dependencies>
 

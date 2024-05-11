@@ -1,6 +1,3 @@
-
-
-
 class ListNode {
     private Book book;
     private ListNode next;

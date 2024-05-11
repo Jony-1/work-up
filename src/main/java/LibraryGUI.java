@@ -123,7 +123,7 @@ class LibraryGUI {
         insertUserPanel.add(insertUserButton);
 
         cards.add(searchUserPanel, "Buscar usuario");
-        cards.add(insertUserButton, "Insertar usuario");
+        cards.add(insertUserPanel, "Insertar usuario");
 
         database = new LibraryDatabase();
         userdatabase = new UserDatabase();
@@ -152,13 +152,13 @@ class LibraryGUI {
             }
         });
 
-       /*
+
         searchUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String searchUserTerm = searchUserField.getText();
-                ListNode foundUsers = userdatabase.searchUsers(searchUserTerm);
-                displayUsers(foundUsers);
+                ListNodeUser foundUser = userdatabase.searchUsers(searchUserTerm);
+                displayUsers(foundUser);
             }
         });
 
@@ -177,7 +177,6 @@ class LibraryGUI {
             }
         });
 
-        */
 
         // Menús
         menuBar = new JMenuBar();
@@ -256,13 +255,16 @@ class LibraryGUI {
     }
 
 
-    private void displayUsers(ArrayList<User> users) {
+    private void displayUsers(ListNodeUser users) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Username");
         model.addColumn("Last Name");
 
-        for (User user : users) {
+        ListNodeUser current = users;
+        while (current != null) {
+            User user = current.getUser();
             model.addRow(new Object[]{user.getUsername(), user.getLastname()});
+            current = current.getNext();
         }
 
         if (userTable == null) {
