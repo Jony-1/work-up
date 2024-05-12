@@ -3,12 +3,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 class LibraryGUI {
     private JFrame frame;
     private JPanel panel;
-    private JPanel panelUser;
+
     private JMenuBar menuBar;
     private JMenu fileMenu;
     private JMenu viewMenu;
@@ -30,29 +29,25 @@ class LibraryGUI {
     private JPanel viewUsersPanel;
     private CardLayout cardLayout;
     private JPanel cards;
-    private JPanel cardsUser;
     private JPanel searchPanel;
     private JPanel searchUserPanel;
-
     private JPanel insertPanel;
     private JPanel insertUserPanel;
-    private JPanel updatePanel;
-    private JPanel updateUserPanel;
     private JButton searchButton;
     private JButton searchUserButton;
-
-    private JTextField searchField;
-    private JTextField searchUserField;
     private JButton insertButton;
     private JButton insertUserButton;
+    private JTextField searchField;
+    private JTextField searchUserField;
     private JTextField titleField;
     private JTextField authorField;
     private JTextField genreField;
     private JTextField yearField;
     private JTextField usernameField;
     private JTextField lastnameField;
+    private JTextField iduserField;
     private LibraryDatabase database;
-    private UserDatabase userdatabase;
+    private UserDatabase userDatabase;
 
     public LibraryGUI() {
         frame = new JFrame("Work-up libreria");
@@ -65,6 +60,7 @@ class LibraryGUI {
         cardLayout = new CardLayout();
         cards = new JPanel(cardLayout);
 
+        // Book search panel
         searchPanel = new JPanel();
         searchPanel.setLayout(new FlowLayout());
         searchButton = new JButton("Buscar libro");
@@ -72,15 +68,13 @@ class LibraryGUI {
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
 
-        updatePanel = new JPanel();
-        updatePanel.setLayout(new GridLayout(2, 2));
-
+        // Book insert panel
         insertPanel = new JPanel();
-        insertPanel.setLayout(new GridLayout(5, 6));
-        titleField = new JTextField(1);
-        authorField = new JTextField(1);
-        genreField = new JTextField(1);
-        yearField = new JTextField(1);
+        insertPanel.setLayout(new GridLayout(5, 2));
+        titleField = new JTextField(10);
+        authorField = new JTextField(10);
+        genreField = new JTextField(10);
+        yearField = new JTextField(10);
         insertButton = new JButton("Insertar libro");
         insertPanel.add(new JLabel("Título: "));
         insertPanel.add(titleField);
@@ -92,14 +86,7 @@ class LibraryGUI {
         insertPanel.add(yearField);
         insertPanel.add(insertButton);
 
-        cards.add(searchPanel, "Buscar libro");
-        cards.add(insertPanel, "Insertar libro");
-        cards.add(updatePanel, "Actualizar libro");
-
-        panel.add(cards);
-        frame.add(panel);
-
-        //user
+        // User search panel
         searchUserPanel = new JPanel();
         searchUserPanel.setLayout(new FlowLayout());
         searchUserButton = new JButton("Buscar usuario");
@@ -107,27 +94,34 @@ class LibraryGUI {
         searchUserPanel.add(searchUserField);
         searchUserPanel.add(searchUserButton);
 
-        updateUserPanel = new JPanel();
-        updateUserPanel.setLayout(new GridLayout(2, 2));
-
+        // User insert panel
         insertUserPanel = new JPanel();
-        insertUserPanel.setLayout(new GridLayout(5, 6));
-        usernameField = new JTextField(1);
-        lastnameField = new JTextField(1);
-
+        insertUserPanel.setLayout(new GridLayout(4, 2));
+        usernameField = new JTextField(10);
+        lastnameField = new JTextField(10);
+        iduserField = new JTextField(10);
         insertUserButton = new JButton("Insertar usuario");
         insertUserPanel.add(new JLabel("Nombre de usuario: "));
         insertUserPanel.add(usernameField);
         insertUserPanel.add(new JLabel("Apellido de usuario: "));
         insertUserPanel.add(lastnameField);
+        insertUserPanel.add(new JLabel("Id de usuario: "));
+        insertUserPanel.add(iduserField);
         insertUserPanel.add(insertUserButton);
 
+        cards.add(searchPanel, "Buscar libro");
+        cards.add(insertPanel, "Insertar libro");
         cards.add(searchUserPanel, "Buscar usuario");
         cards.add(insertUserPanel, "Insertar usuario");
 
-        database = new LibraryDatabase();
-        userdatabase = new UserDatabase();
+        panel.add(cards);
+        frame.add(panel);
 
+        // Creating database objects
+        database = new LibraryDatabase();
+        userDatabase = new UserDatabase();
+
+        // Action listeners for book functionalities
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -152,35 +146,33 @@ class LibraryGUI {
             }
         });
 
-
+        // Action listeners for user functionalities
         searchUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String searchUserTerm = searchUserField.getText();
-                ListNodeUser foundUser = userdatabase.searchUsers(searchUserTerm);
+                ListNodeUser foundUser = userDatabase.searchUsers(searchUserTerm);
                 displayUsers(foundUser);
             }
         });
-
 
         insertUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String lastname = lastnameField.getText();
+                String iduser = iduserField.getText();
 
-
-                User newUser = new User(username, lastname);
-                userdatabase.insertUser(newUser);
+                User newUser = new User(username, lastname, iduser);
+                userDatabase.insertUser(newUser);
 
                 JOptionPane.showMessageDialog(frame, "Usuario insertado exitosamente");
             }
         });
 
-
-        // Menús
+        // Creating menu bar and items
         menuBar = new JMenuBar();
-        fileMenu = new JMenu("ayuda");
+        fileMenu = new JMenu("Archivo");
         exitItem = new JMenuItem("Salir");
 
         userMenu = new JMenu("Usuario");
@@ -211,11 +203,12 @@ class LibraryGUI {
         menuBar.add(viewMenu);
         frame.setJMenuBar(menuBar);
 
-        //user
+        // Menu item action listeners
         searchUserItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cards, "Buscar usuario");
+
             }
         });
 
@@ -226,7 +219,6 @@ class LibraryGUI {
             }
         });
 
-        //libro
         insertItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -241,9 +233,6 @@ class LibraryGUI {
             }
         });
 
-
-
-        //vista libro
         viewBooksItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -251,27 +240,34 @@ class LibraryGUI {
                 displayBooks(allBooks);
             }
         });
+        viewUsersItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ListNodeUser allUsers = userDatabase.getAlluser();
+                displayUsers(allUsers);
+            }
+        });
 
     }
-
 
     private void displayUsers(ListNodeUser users) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Username");
         model.addColumn("Last Name");
+        model.addColumn("Id User");
 
         ListNodeUser current = users;
         while (current != null) {
             User user = current.getUser();
-            model.addRow(new Object[]{user.getUsername(), user.getLastname()});
+            model.addRow(new Object[]{user.getUsername(), user.getLastname(), user.getIdUser()});
             current = current.getNext();
         }
 
+        // Create or update user table
         if (userTable == null) {
             userTable = new JTable(model);
             JScrollPane scrollPane = new JScrollPane(userTable);
-            viewUsersPanel = new JPanel();
-            viewUsersPanel.setLayout(new BorderLayout());
+            viewUsersPanel = new JPanel(new BorderLayout());
             viewUsersPanel.add(scrollPane, BorderLayout.CENTER);
             cards.add(viewUsersPanel, "Consultar usuarios");
         } else {
@@ -280,7 +276,6 @@ class LibraryGUI {
 
         cardLayout.show(cards, "Consultar usuarios");
     }
-
 
     private void displayBooks(ListNode books) {
         DefaultTableModel model = new DefaultTableModel();
@@ -296,11 +291,11 @@ class LibraryGUI {
             current = current.getNext();
         }
 
+        // Create or update book table
         if (bookTable == null) {
             bookTable = new JTable(model);
             JScrollPane scrollPane = new JScrollPane(bookTable);
-            viewBooksPanel = new JPanel();
-            viewBooksPanel.setLayout(new BorderLayout());
+            viewBooksPanel = new JPanel(new BorderLayout());
             viewBooksPanel.add(scrollPane, BorderLayout.CENTER);
             cards.add(viewBooksPanel, "Consultar libros");
         } else {
@@ -310,17 +305,12 @@ class LibraryGUI {
         cardLayout.show(cards, "Consultar libros");
     }
 
-
-
     public static void main(String[] args) {
         LibraryGUI libraryGUI = new LibraryGUI();
         libraryGUI.showGUI();
     }
 
-
     public void showGUI() {
         frame.setVisible(true);
     }
-
-
 }

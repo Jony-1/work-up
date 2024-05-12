@@ -1,18 +1,18 @@
 class ListNodeUser {
-    private Book book;
+    private User user;
     private ListNodeUser next;
 
-    public ListNodeUser(Book book, ListNodeUser next) {
-        this.book = book;
+    public ListNodeUser(User user, ListNodeUser next) {
+        this.user = user;
         this.next = next;
     }
 
-    public Book getBook() {
-        return book;
+    public User getUser() {
+        return user;
     }
 
-    public void setBook(Book book) {
-        this.book = book;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public ListNodeUser getNext() {
@@ -50,49 +50,50 @@ class UserDatabase {
     }
 
     private ListNodeUser searchRecursive(ListNodeUser node, String searchTerm) {
-        ListNodeUser foundBooks = null;
+        ListNodeUser foundUsers = null;
         while (node != null) {
-            if (node.getBook().getTitle().toLowerCase().contains(searchTerm) ||
-                    node.getBook().getAuthor().toLowerCase().contains(searchTerm) ||
-                    node.getBook().getGenre().toLowerCase().contains(searchTerm) ||
-                    String.valueOf(node.getBook().getYear()).equals(searchTerm)) {
-                if (foundBooks == null) {
-                    foundBooks = new ListNodeUser(node.getBook(), null);
+            if (node.getUser().getUsername().toLowerCase().contains(searchTerm) ||
+                    node.getUser().getLastname().toLowerCase().contains(searchTerm) ||
+                    node.getUser().getIdUser().toLowerCase().contains(searchTerm)) {
+                if (foundUsers == null) {
+                    foundUsers = new ListNodeUser(node.getUser(), null);
                 } else {
-                    ListNodeUser current = foundBooks;
+                    ListNodeUser current = foundUsers;
                     while (current.getNext() != null) {
                         current = current.getNext();
                     }
-                    ListNodeUser newFoundBook = new ListNodeUser(node.getBook(), null);
-                    current.setNext(newFoundBook);
+                    ListNodeUser newFoundUser = new ListNodeUser(node.getUser(), null);
+                    current.setNext(newFoundUser);
                 }
             }
             node = node.getNext();
         }
-        return foundBooks;
+        return foundUsers;
     }
 
-    public ListNodeUser getAllBooks() {
-
+    public ListNodeUser getAlluser() {
         if (head == null) {
             return null;
         }
 
-        ListNodeUser allBooksHead = new ListNodeUser(null, null);
-        ListNodeUser currentAllBooksNode = allBooksHead;
+
+        ListNodeUser allUsersHead = new ListNodeUser(null, null);
+        ListNodeUser currentAllUserNode = allUsersHead;
 
         ListNodeUser current = head;
         while (current != null) {
 
-            ListNodeUser newBookNode = new ListNodeUser(current.getBook(), null);
-            currentAllBooksNode.setNext(newBookNode);
-            currentAllBooksNode = newBookNode;
+            ListNodeUser newUserNode = new ListNodeUser(current.getUser(), null);
+
+            currentAllUserNode.setNext(newUserNode);
+
+            currentAllUserNode = newUserNode;
 
             current = current.getNext();
         }
 
 
-        return allBooksHead.getNext();
+        return allUsersHead.getNext();
     }
 
 
