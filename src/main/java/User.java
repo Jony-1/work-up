@@ -36,4 +36,6 @@ class User {
         this.iduser = iduser;
 
     }
+
+
 }

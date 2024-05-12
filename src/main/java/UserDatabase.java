@@ -1,5 +1,7 @@
 class ListNodeUser {
     private User user;
+
+
     private ListNodeUser next;
 
     public ListNodeUser(User user, ListNodeUser next) {
@@ -96,5 +98,18 @@ class UserDatabase {
         return allUsersHead.getNext();
     }
 
+
+
+
+    public User getUserById(String userId) {
+        ListNodeUser current = head;
+        while (current != null) {
+            if (current.getUser().getIdUser().equals(userId)) {
+                return current.getUser();
+            }
+            current = current.getNext();
+        }
+        return null; // Devolver null si no se encuentra el usuario con el ID especificado
+    }
 
 }

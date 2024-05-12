@@ -1,10 +1,13 @@
 class Book {
+
+    private String id;
     private String title;
     private String author;
     private String genre;
     private int year;
 
-    public Book(String title, String author, String genre, int year) {
+    public Book(String id, String title, String author, String genre, int year) {
+        this.id = id;
         this.title = title;
         this.author = author;
         this.genre = genre;
@@ -42,4 +45,9 @@ class Book {
     public void setYear(int year) {
         this.year = year;
     }
+    public String getId() {
+        return id;
+    }
+
+
 }

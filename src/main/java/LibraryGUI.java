@@ -21,22 +21,26 @@ class LibraryGUI {
     private JMenuItem updateUserItem;
     private JMenuItem viewBooksItem;
     private JMenuItem viewUsersItem;
+    private JMenuItem viewLoansItem;
 
     private JTable bookTable;
     private JTable userTable;
 
     private JPanel viewBooksPanel;
     private JPanel viewUsersPanel;
+    private JPanel viewLoansPanel;
     private CardLayout cardLayout;
     private JPanel cards;
     private JPanel searchPanel;
     private JPanel searchUserPanel;
     private JPanel insertPanel;
     private JPanel insertUserPanel;
+    private JPanel insertLoanPanel;
     private JButton searchButton;
     private JButton searchUserButton;
     private JButton insertButton;
     private JButton insertUserButton;
+    private JButton insertLoanButton;
     private JTextField searchField;
     private JTextField searchUserField;
     private JTextField titleField;
@@ -109,68 +113,56 @@ class LibraryGUI {
         insertUserPanel.add(iduserField);
         insertUserPanel.add(insertUserButton);
 
+        // Loan insert panel
+        insertLoanPanel = new JPanel();
+        insertLoanPanel.setLayout(new GridLayout(3, 2));
+        JTextField loanUserField = new JTextField(10);
+        JTextField loanBookField = new JTextField(10);
+        insertLoanButton = new JButton("Registrar préstamo");
+        insertLoanPanel.add(new JLabel("ID de usuario: "));
+        insertLoanPanel.add(loanUserField);
+        insertLoanPanel.add(new JLabel("ID de libro: "));
+        insertLoanPanel.add(loanBookField);
+        insertLoanPanel.add(insertLoanButton);
+
+        // Agregar paneles a cards
         cards.add(searchPanel, "Buscar libro");
         cards.add(insertPanel, "Insertar libro");
         cards.add(searchUserPanel, "Buscar usuario");
         cards.add(insertUserPanel, "Insertar usuario");
+        cards.add(insertLoanPanel, "Registrar préstamo");
 
         panel.add(cards);
         frame.add(panel);
 
-        // Creating database objects
+        // Crear bases de datos
         database = new LibraryDatabase();
         userDatabase = new UserDatabase();
 
-        // Action listeners for book functionalities
-        searchButton.addActionListener(new ActionListener() {
+        // Action listener para registro de préstamos
+        insertLoanButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String searchTerm = searchField.getText();
-                ListNode foundBooks = database.searchBooks(searchTerm);
-                displayBooks(foundBooks);
+                String loanUserId = loanUserField.getText();
+                String loanBookId = loanBookField.getText();
+
+                // Obtener usuario y libro correspondientes
+                User loanUser = userDatabase.getUserById(loanUserId);
+                Book loanBook = database.getBookById(loanBookId);
+
+                if (loanUser != null && loanBook != null) {
+                    // Crear préstamo y agregarlo a la base de datos
+                    Loan newLoan = new Loan(loanUser, loanBook, Loan.getCurrentDate(), ""); // Fecha de devolución vacía inicialmente
+                    LoanDatabase loanData = new LoanDatabase();
+                    loanData.insertLoan(newLoan);
+                    JOptionPane.showMessageDialog(frame, "Préstamo registrado exitosamente");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "ID de usuario o libro no válido");
+                }
             }
         });
 
-        insertButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String title = titleField.getText();
-                String author = authorField.getText();
-                String genre = genreField.getText();
-                int year = Integer.parseInt(yearField.getText());
-
-                Book newBook = new Book(title, author, genre, year);
-                database.insertBook(newBook);
-
-                JOptionPane.showMessageDialog(frame, "Libro insertado exitosamente");
-            }
-        });
-
-        // Action listeners for user functionalities
-        searchUserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String searchUserTerm = searchUserField.getText();
-                ListNodeUser foundUser = userDatabase.searchUsers(searchUserTerm);
-                displayUsers(foundUser);
-            }
-        });
-
-        insertUserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                String lastname = lastnameField.getText();
-                String iduser = iduserField.getText();
-
-                User newUser = new User(username, lastname, iduser);
-                userDatabase.insertUser(newUser);
-
-                JOptionPane.showMessageDialog(frame, "Usuario insertado exitosamente");
-            }
-        });
-
-        // Creating menu bar and items
+        // Crear menú y elementos
         menuBar = new JMenuBar();
         fileMenu = new JMenu("Archivo");
         exitItem = new JMenuItem("Salir");
@@ -186,29 +178,36 @@ class LibraryGUI {
         insertItem = new JMenuItem("Insertar libro");
         updateItem = new JMenuItem("Actualizar libro");
         viewBooksItem = new JMenuItem("Ver libros");
+        viewLoansItem = new JMenuItem("Ver préstamos");
 
+        // Agregar elementos al menú
         fileMenu.add(exitItem);
-        viewMenu.add(searchItem);
-        viewMenu.add(insertItem);
-        viewMenu.add(updateItem);
-        viewMenu.add(viewBooksItem);
 
         userMenu.add(searchUserItem);
         userMenu.add(insertUserItem);
         userMenu.add(updateUserItem);
         userMenu.add(viewUsersItem);
 
+        viewMenu.add(searchItem);
+        viewMenu.add(insertItem);
+        viewMenu.add(updateItem);
+        viewMenu.add(viewBooksItem);
+        viewMenu.add(viewLoansItem);
+
+        // Agregar menú al menú principal
         menuBar.add(fileMenu);
         menuBar.add(userMenu);
         menuBar.add(viewMenu);
         frame.setJMenuBar(menuBar);
 
-        // Menu item action listeners
+        // Mostrar la ventana
+        frame.setVisible(true);
+
+        // Action listeners para los elementos del menú
         searchUserItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cardLayout.show(cards, "Buscar usuario");
-
             }
         });
 
@@ -240,6 +239,15 @@ class LibraryGUI {
                 displayBooks(allBooks);
             }
         });
+
+        viewLoansItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cards, "Registrar préstamo"); // Cambiar al panel de préstamos
+            }
+        });
+
+
         viewUsersItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -247,7 +255,6 @@ class LibraryGUI {
                 displayUsers(allUsers);
             }
         });
-
     }
 
     private void displayUsers(ListNodeUser users) {
@@ -263,7 +270,7 @@ class LibraryGUI {
             current = current.getNext();
         }
 
-        // Create or update user table
+        // Crear o actualizar tabla de usuarios
         if (userTable == null) {
             userTable = new JTable(model);
             JScrollPane scrollPane = new JScrollPane(userTable);
@@ -291,7 +298,7 @@ class LibraryGUI {
             current = current.getNext();
         }
 
-        // Create or update book table
+        // Crear o actualizar tabla de libros
         if (bookTable == null) {
             bookTable = new JTable(model);
             JScrollPane scrollPane = new JScrollPane(bookTable);
@@ -305,12 +312,9 @@ class LibraryGUI {
         cardLayout.show(cards, "Consultar libros");
     }
 
-    public static void main(String[] args) {
-        LibraryGUI libraryGUI = new LibraryGUI();
-        libraryGUI.showGUI();
-    }
 
     public void showGUI() {
         frame.setVisible(true);
     }
+
 }

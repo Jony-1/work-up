@@ -94,5 +94,15 @@ class LibraryDatabase {
 
         return allBooksHead.getNext();
     }
+    public Book getBookById(String bookId) {
+        ListNode current = head;
+        while (current != null) {
+            if (current.getBook().getId().equals(bookId)) {
+                return current.getBook();
+            }
+            current = current.getNext();
+        }
+        return null;
+    }
 
 }
