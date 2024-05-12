@@ -3,6 +3,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 class LibraryGUI {
     private JFrame frame;
@@ -44,6 +47,7 @@ class LibraryGUI {
     private JTextField searchField;
     private JTextField searchUserField;
     private JTextField titleField;
+    private JTextField bookId;
     private JTextField authorField;
     private JTextField genreField;
     private JTextField yearField;
@@ -74,12 +78,15 @@ class LibraryGUI {
 
         // Book insert panel
         insertPanel = new JPanel();
-        insertPanel.setLayout(new GridLayout(5, 2));
+        insertPanel.setLayout(new GridLayout(6, 2)); // Changed to 6 rows
         titleField = new JTextField(10);
         authorField = new JTextField(10);
         genreField = new JTextField(10);
         yearField = new JTextField(10);
         insertButton = new JButton("Insertar libro");
+        bookId = new JTextField(10); // Initialize bookId
+        insertPanel.add(new JLabel("bookId: "));
+        insertPanel.add(bookId);
         insertPanel.add(new JLabel("Título: "));
         insertPanel.add(titleField);
         insertPanel.add(new JLabel("Autor: "));
@@ -162,6 +169,67 @@ class LibraryGUI {
             }
         });
 
+        // Action listener para la inserción de libros
+        insertButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Obtener los valores de los campos de texto
+                String bookIdText = bookId.getText(); // Change variable name
+                String title = titleField.getText();
+                String author = authorField.getText();
+                String genre = genreField.getText();
+                Date year = null; // Inicializar year como null
+
+                // Obtener el año del campo de texto y convertirlo a Date
+                String yearText = yearField.getText();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy"); // Formato de año
+                try {
+                    year = dateFormat.parse(yearText); // Intentar parsear el año
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                    // Manejar el error de parseo (puede mostrar un mensaje de error)
+                }
+
+                Book newBook = new Book(bookIdText, title, author, genre, year);
+
+                // Insertar el nuevo libro en la base de datos
+                database.insertBook(newBook);
+
+                // Limpiar los campos de texto
+                bookId.setText(""); // Clear bookId field
+                titleField.setText("");
+                authorField.setText("");
+                genreField.setText("");
+                yearField.setText("");
+
+                JOptionPane.showMessageDialog(frame, "Libro insertado exitosamente");
+            }
+        });
+
+        // Action listener para la inserción de usuarios
+        insertUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Obtener los valores de los campos de texto
+                String username = usernameField.getText();
+                String lastname = lastnameField.getText();
+                String iduser = iduserField.getText();
+
+                // Crear un nuevo usuario
+                User newUser = new User(username, lastname, iduser);
+
+                // Insertar el nuevo usuario en la base de datos
+                userDatabase.insertUser(newUser);
+
+                // Limpiar los campos de texto
+                usernameField.setText("");
+                lastnameField.setText("");
+                iduserField.setText("");
+
+                JOptionPane.showMessageDialog(frame, "Usuario insertado exitosamente");
+            }
+        });
+
         // Crear menú y elementos
         menuBar = new JMenuBar();
         fileMenu = new JMenu("Archivo");
@@ -199,9 +267,6 @@ class LibraryGUI {
         menuBar.add(userMenu);
         menuBar.add(viewMenu);
         frame.setJMenuBar(menuBar);
-
-        // Mostrar la ventana
-        frame.setVisible(true);
 
         // Action listeners para los elementos del menú
         searchUserItem.addActionListener(new ActionListener() {
@@ -246,7 +311,6 @@ class LibraryGUI {
                 cardLayout.show(cards, "Registrar préstamo"); // Cambiar al panel de préstamos
             }
         });
-
 
         viewUsersItem.addActionListener(new ActionListener() {
             @Override
@@ -312,9 +376,7 @@ class LibraryGUI {
         cardLayout.show(cards, "Consultar libros");
     }
 
-
     public void showGUI() {
         frame.setVisible(true);
     }
-
 }

@@ -1,12 +1,14 @@
+import java.util.Date;
+
 class Book {
 
     private String id;
     private String title;
     private String author;
     private String genre;
-    private int year;
+    private Date year;
 
-    public Book(String id, String title, String author, String genre, int year) {
+    public Book(String id, String title, String author, String genre, Date year) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -38,13 +40,10 @@ class Book {
         this.genre = genre;
     }
 
-    public int getYear() {
+    public Date getYear() {
         return year;
     }
 
-    public void setYear(int year) {
-        this.year = year;
-    }
     public String getId() {
         return id;
     }
