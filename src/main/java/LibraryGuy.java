@@ -13,21 +13,35 @@ class LibraryGUI {
     private JMenu fileMenu;
     private JMenu viewMenu;
     private JMenu userMenu;
+    private JMenu loanMenu;
     private JMenuItem exitItem;
     private JMenuItem searchItem;
     private JMenuItem insertItem;
     private JMenuItem updateItem;
+
     private JMenuItem searchUserItem;
     private JMenuItem insertUserItem;
     private JMenuItem updateUserItem;
     private JMenuItem viewBooksItem;
     private JMenuItem viewUsersItem;
 
+    private JMenuItem searchLoanItem;
+    private JMenuItem insertLoanItem;
+    private JMenuItem deleteLoanItem;
+    private JMenuItem viewLoansItem;
+
+
     private JTable bookTable;
     private JTable userTable;
+    private JTable loanTable;
+
 
     private JPanel viewBooksPanel;
     private JPanel viewUsersPanel;
+
+    private JPanel viewLoansPanel;
+    private JPanel deleteLoanPanel;
+
     private CardLayout cardLayout;
     private JPanel cards;
     private JPanel cardsUser;
@@ -43,16 +57,30 @@ class LibraryGUI {
 
     private JTextField searchField;
     private JTextField searchUserField;
+
     private JButton insertButton;
     private JButton insertUserButton;
+
+    private JButton insertLoanButton;
+    private JButton deleteLoanButton;
+
+
     private JTextField titleField;
     private JTextField authorField;
     private JTextField genreField;
     private JTextField yearField;
     private JTextField usernameField;
     private JTextField lastnameField;
+
+    private JTextField loanIdField;
+    private JTextField loanDateField;
+    private JTextField bookIdField;
+    private JTextField userIdField;
+
     private LibraryDatabase database;
     private UserDatabase userdatabase;
+    private LoanDatabase loanDatabase;
+
 
     public LibraryGUI() {
         frame = new JFrame("Work-up libreria");
@@ -122,10 +150,53 @@ class LibraryGUI {
         insertUserPanel.add(lastnameField);
         insertUserPanel.add(insertUserButton);
 
-
-
         database = new LibraryDatabase();
         userdatabase = new UserDatabase();
+        loanDatabase = new LoanDatabase();
+
+        // Panel de insertar préstamo
+        JPanel insertLoanPanel = new JPanel();
+        insertLoanPanel.setLayout(new GridLayout(4, 2));
+        bookIdField = new JTextField(1);
+        userIdField = new JTextField(1);
+        loanDateField = new JTextField(1);
+        insertLoanButton = new JButton("Insertar préstamo");
+
+        insertLoanPanel.add(new JLabel("ID del libro: "));
+        insertLoanPanel.add(bookIdField);
+        insertLoanPanel.add(new JLabel("ID del usuario: "));
+        insertLoanPanel.add(userIdField);
+        insertLoanPanel.add(new JLabel("Fecha de préstamo: "));
+        insertLoanPanel.add(loanDateField);
+        insertLoanPanel.add(insertLoanButton);
+
+        cards.add(insertLoanPanel, "Insertar préstamo");
+
+        // Panel de buscar préstamo
+        JPanel searchLoanPanel = new JPanel();
+        searchLoanPanel.setLayout(new FlowLayout());
+        JTextField searchLoanField = new JTextField(20);
+        JButton searchLoanButton = new JButton("Buscar préstamo");
+        searchLoanPanel.add(new JLabel("ID del préstamo: "));
+        searchLoanPanel.add(searchLoanField);
+        searchLoanPanel.add(searchLoanButton);
+
+        cards.add(searchLoanPanel, "Buscar préstamo");
+
+        // Panel de eliminar préstamo
+        JPanel deleteLoanPanel = new JPanel();
+        deleteLoanPanel.setLayout(new FlowLayout());
+        loanIdField = new JTextField(20);
+        deleteLoanButton = new JButton("Eliminar préstamo");
+        deleteLoanPanel.add(new JLabel("ID del préstamo a eliminar: "));
+        deleteLoanPanel.add(loanIdField);
+        deleteLoanPanel.add(deleteLoanButton);
+
+        cards.add(deleteLoanPanel, "Eliminar préstamo");
+
+        panel.add(cards);
+        frame.add(panel);
+
 
         searchButton.addActionListener(new ActionListener() {
             @Override
@@ -152,29 +223,6 @@ class LibraryGUI {
         });
 
 
-        //user
-        searchUserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String searchUserTerm = searchUserField.getText();
-                ArrayList<User> foundUsers = userdatabase.searchUsers(searchUserTerm);
-                displayUsers(foundUsers);
-            }
-        });
-        insertUserButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                String lastname = lastnameField.getText();
-
-
-                User newUser = new User(username, lastname);
-                userdatabase.insertUser(newUser);
-
-                JOptionPane.showMessageDialog(frame, "Usuario insertado exitosamente");
-            }
-        });
-
         // Menús
         menuBar = new JMenuBar();
         fileMenu = new JMenu("ayuda");
@@ -192,6 +240,13 @@ class LibraryGUI {
         updateItem = new JMenuItem("Actualizar libro");
         viewBooksItem = new JMenuItem("Ver libros");
 
+        loanMenu = new JMenu("Préstamos");
+        searchLoanItem = new JMenuItem("Buscar préstamo");
+        insertLoanItem = new JMenuItem("Insertar préstamo");
+        deleteLoanItem = new JMenuItem("Eliminar préstamo");
+        viewLoansItem = new JMenuItem("Ver préstamos");
+
+
         fileMenu.add(exitItem);
         viewMenu.add(searchItem);
         viewMenu.add(insertItem);
@@ -203,10 +258,58 @@ class LibraryGUI {
         userMenu.add(updateUserItem);
         userMenu.add(viewUsersItem);
 
+        fileMenu.add(exitItem);
+        loanMenu.add(searchLoanItem);
+        loanMenu.add(insertLoanItem);
+        loanMenu.add(deleteLoanItem);
+        loanMenu.add(viewLoansItem);
+
+
         menuBar.add(fileMenu);
         menuBar.add(userMenu);
         menuBar.add(viewMenu);
+        menuBar.add(loanMenu);
+
         frame.setJMenuBar(menuBar);
+
+        // Listeners del menú de loan
+        insertLoanButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int bookId = Integer.parseInt(bookIdField.getText());
+                int userId = Integer.parseInt(userIdField.getText());
+                String loanDate = loanDateField.getText();
+
+                Loan newLoan = new Loan(bookId, userId, loanDate);
+                loanDatabase.insertLoan(newLoan);
+
+                JOptionPane.showMessageDialog(frame, "Préstamo insertado exitosamente");
+            }
+        });
+
+        searchLoanButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String searchTerm = searchLoanField.getText();
+                ArrayList<Loan> foundLoans = loanDatabase.searchLoans(searchTerm);
+                displayLoans(foundLoans);
+            }
+        });
+
+        deleteLoanButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int loanId = Integer.parseInt(loanIdField.getText());
+                boolean deleted = loanDatabase.deleteLoan(loanId);
+
+                if (deleted) {
+                    JOptionPane.showMessageDialog(frame, "Préstamo eliminado exitosamente");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Préstamo no encontrado");
+                }
+            }
+        });
+
 
         //user
         searchUserItem.addActionListener(new ActionListener() {
@@ -256,13 +359,21 @@ class LibraryGUI {
                 displayBooks(allBooks);
             }
         });
-    }
 
+        //vista prestamo
+        viewLoansItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<Loan> allLoans = loanDatabase.getAllLoans();
+                displayLoans(allLoans);
+            }
+        });
+    }
 
     private void displayUsers(ArrayList<User> users) {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Username");
-        model.addColumn("Last Name");
+        model.addColumn("Last name");
 
         for (User user : users) {
             model.addRow(new Object[]{user.getUsername(), user.getLastname()});
@@ -308,8 +419,38 @@ class LibraryGUI {
         cardLayout.show(cards, "Consultar libros");
     }
 
+    private void displayLoans(ArrayList<Loan> loans) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID del Préstamo");
+        model.addColumn("ID del Libro");
+        model.addColumn("ID del Usuario");
+        model.addColumn("Fecha de Préstamo");
+
+        for (Loan loan : loans) {
+            model.addRow(new Object[]{loan.getLoanId(), loan.getBookId(), loan.getUserId(), loan.getLoanDate()});
+        }
+
+        if (loanTable == null) {
+            loanTable = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(loanTable);
+            viewLoansPanel = new JPanel();
+            viewLoansPanel.setLayout(new BorderLayout());
+            viewLoansPanel.add(scrollPane, BorderLayout.CENTER);
+            cards.add(viewLoansPanel, "Consultar préstamos");
+        } else {
+            loanTable.setModel(model);
+        }
+
+        cardLayout.show(cards, "Consultar préstamos");
+    }
+
     public void showGUI() {
         frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        LibraryGUI gui = new LibraryGUI();
+        gui.showGUI();
     }
 }
 

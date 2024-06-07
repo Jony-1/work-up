@@ -1,28 +1,28 @@
-class User {
+public class User {
     private String username;
     private String lastname;
-
+    private int userId;
 
     public User(String username, String lastname) {
         this.username = username;
         this.lastname = lastname;
+        this.userId = generateUserId(); // Método para generar un ID único para cada usuario
+    }
 
+    private int generateUserId() {
+        // Implementa la lógica para generar un ID único
+        return (int) (Math.random() * 10000); // Ejemplo simple
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String name) {
-        this.username = username;
-    }
-
     public String getLastname() {
         return lastname;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-
+    public int getUserId() {
+        return userId;
     }
 }
