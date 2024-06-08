@@ -3,14 +3,24 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
-class LibraryGUI {
+
+public class LibraryGUI {
     private JFrame frame;
     private JPanel panel;
+    private JMenu loanMenu;
 
+    private JMenuItem returnItem;
+
+
+    public Graph graph;
+
+    private JMenuItem searchLoanItem;
+    private JMenuItem insertLoanItem;
+    private JMenuItem deleteLoanItem;
+    private JMenuItem viewLoansItem;
     private JMenuBar menuBar;
     private JMenu fileMenu;
     private JMenu viewMenu;
@@ -24,10 +34,12 @@ class LibraryGUI {
     private JMenuItem updateUserItem;
     private JMenuItem viewBooksItem;
     private JMenuItem viewUsersItem;
-    private JMenuItem viewLoansItem;
+
+
 
     private JTable bookTable;
     private JTable userTable;
+    private JTable loanTable; // Tabla para mostrar préstamos
 
     private JPanel viewBooksPanel;
     private JPanel viewUsersPanel;
@@ -48,16 +60,24 @@ class LibraryGUI {
     private JTextField searchUserField;
     private JTextField titleField;
     private JTextField bookId;
+    private JPanel returnPanel; // Nuevo panel para devoluciones
     private JTextField authorField;
     private JTextField genreField;
     private JTextField yearField;
+
+    private JTextField loanIdField; // Campo de texto para ID de préstamo
     private JTextField usernameField;
+    private JButton returnButton; // Nuevo botón para devoluciones
     private JTextField lastnameField;
     private JTextField iduserField;
     private LibraryDatabase database;
     private UserDatabase userDatabase;
+    private LoanDatabase loanDatabase;
+
 
     public LibraryGUI() {
+
+
         frame = new JFrame("Work-up libreria");
         frame.setSize(600, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,7 +88,7 @@ class LibraryGUI {
         cardLayout = new CardLayout();
         cards = new JPanel(cardLayout);
 
-        // Book search panel
+        // Panel de búsqueda de libros
         searchPanel = new JPanel();
         searchPanel.setLayout(new FlowLayout());
         searchButton = new JButton("Buscar libro");
@@ -76,16 +96,16 @@ class LibraryGUI {
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
 
-        // Book insert panel
+        // Panel de inserción de libros
         insertPanel = new JPanel();
-        insertPanel.setLayout(new GridLayout(6, 2)); // Changed to 6 rows
+        insertPanel.setLayout(new GridLayout(6, 2));
         titleField = new JTextField(10);
         authorField = new JTextField(10);
         genreField = new JTextField(10);
         yearField = new JTextField(10);
         insertButton = new JButton("Insertar libro");
-        bookId = new JTextField(10); // Initialize bookId
-        insertPanel.add(new JLabel("bookId: "));
+        bookId = new JTextField(10);
+        insertPanel.add(new JLabel("ID del libro: "));
         insertPanel.add(bookId);
         insertPanel.add(new JLabel("Título: "));
         insertPanel.add(titleField);
@@ -97,7 +117,7 @@ class LibraryGUI {
         insertPanel.add(yearField);
         insertPanel.add(insertButton);
 
-        // User search panel
+        // Panel de búsqueda de usuarios
         searchUserPanel = new JPanel();
         searchUserPanel.setLayout(new FlowLayout());
         searchUserButton = new JButton("Buscar usuario");
@@ -105,7 +125,7 @@ class LibraryGUI {
         searchUserPanel.add(searchUserField);
         searchUserPanel.add(searchUserButton);
 
-        // User insert panel
+        // Panel de inserción de usuarios
         insertUserPanel = new JPanel();
         insertUserPanel.setLayout(new GridLayout(4, 2));
         usernameField = new JTextField(10);
@@ -116,13 +136,13 @@ class LibraryGUI {
         insertUserPanel.add(usernameField);
         insertUserPanel.add(new JLabel("Apellido de usuario: "));
         insertUserPanel.add(lastnameField);
-        insertUserPanel.add(new JLabel("Id de usuario: "));
+        insertUserPanel.add(new JLabel("ID de usuario: "));
         insertUserPanel.add(iduserField);
         insertUserPanel.add(insertUserButton);
 
-        // Loan insert panel
+        // Panel de inserción de préstamos
         insertLoanPanel = new JPanel();
-        insertLoanPanel.setLayout(new GridLayout(3, 2));
+        insertLoanPanel.setLayout(new GridLayout(4, 2));
         JTextField loanUserField = new JTextField(10);
         JTextField loanBookField = new JTextField(10);
         insertLoanButton = new JButton("Registrar préstamo");
@@ -132,12 +152,25 @@ class LibraryGUI {
         insertLoanPanel.add(loanBookField);
         insertLoanPanel.add(insertLoanButton);
 
+
+
+        // Panel de devolución de préstamos
+        returnPanel = new JPanel();
+        returnPanel.setLayout(new GridLayout(2, 2));
+        loanIdField = new JTextField(10);
+        returnButton = new JButton("Devolver libro");
+        returnPanel.add(new JLabel("ID del préstamo: "));
+        returnPanel.add(loanIdField);
+        returnPanel.add(returnButton);
+
+
         // Agregar paneles a cards
         cards.add(searchPanel, "Buscar libro");
         cards.add(insertPanel, "Insertar libro");
         cards.add(searchUserPanel, "Buscar usuario");
         cards.add(insertUserPanel, "Insertar usuario");
         cards.add(insertLoanPanel, "Registrar préstamo");
+        cards.add(returnPanel, "Devolver préstamo");
 
         panel.add(cards);
         frame.add(panel);
@@ -145,8 +178,8 @@ class LibraryGUI {
         // Crear bases de datos
         database = new LibraryDatabase();
         userDatabase = new UserDatabase();
+        loanDatabase = new LoanDatabase();
 
-        // Action listener para registro de préstamos
         insertLoanButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -155,48 +188,93 @@ class LibraryGUI {
 
                 // Obtener usuario y libro correspondientes
                 User loanUser = userDatabase.getUserById(loanUserId);
-                Book loanBook = database.getBookById(loanBookId);
+                Book loanBook = database.getBookById(loanBookId); // Renombrar database a libraryDatabase
 
                 if (loanUser != null && loanBook != null) {
-                    // Crear préstamo y agregarlo a la base de datos
-                    Loan newLoan = new Loan(loanUser, loanBook, Loan.getCurrentDate(), ""); // Fecha de devolución vacía inicialmente
-                    LoanDatabase loanData = new LoanDatabase();
-                    loanData.insertLoan(newLoan);
-                    JOptionPane.showMessageDialog(frame, "Préstamo registrado exitosamente");
+                    // Obtener el ID del nodo del usuario y del libro
+                    String userNodeId = loanUser.getIdUser();
+                    String bookNodeId = loanBook.getId();
+
+                    // Buscar la ruta más corta entre el usuario y el libro
+                    List<String> shortestPath = graph.getShortestPath(userNodeId, bookNodeId);
+
+                    if (!shortestPath.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Se encontró una ruta entre el usuario y el libro.");
+
+                        // Crear un mensaje para mostrar la ruta encontrada
+                        StringBuilder message = new StringBuilder();
+                        message.append("Ruta encontrada: ");
+                        for (String node : shortestPath) {
+                            message.append(node).append(" -> ");
+                        }
+                        // Eliminar el último " -> "
+                        if (message.length() > 4) {
+                            message.delete(message.length() - 4, message.length());
+                        }
+
+                        // Mostrar el mensaje
+                        JOptionPane.showMessageDialog(frame, message.toString());
+
+                        // Continuar con la lógica de registro del préstamo
+                        String currentDate = LocalDate.now().toString(); // Obtener la fecha actual
+                        Loan newLoan = new Loan(loanUser, loanBook, currentDate); // Crear un objeto Loan con los datos
+                        // Insertar el préstamo en la base de datos
+                        loanDatabase.insertLoan(newLoan);
+                        JOptionPane.showMessageDialog(frame, "Préstamo registrado exitosamente");
+
+                        // Cambiar a la vista de préstamos
+                        cardLayout.show(cards, "Consultar préstamos");
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "No se encontró una ruta entre el usuario y el libro.");
+                    }
                 } else {
                     JOptionPane.showMessageDialog(frame, "ID de usuario o libro no válido");
                 }
             }
         });
 
+
+
+        // Action listener para devolución de préstamos
+        returnButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String loanId = loanIdField.getText();
+
+                // Realizar la devolución del préstamo con el ID proporcionado
+                boolean success = loanDatabase.returnLoan(loanId);
+
+                JOptionPane.showMessageDialog(frame, "Se encontró una ruta entre el usuario y el libro.");
+
+
+                if (success) {
+                    JOptionPane.showMessageDialog(frame, "Devolución exitosa");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "No se pudo encontrar el préstamo con ese ID");
+                }
+            }
+        });
+
+
         // Action listener para la inserción de libros
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Obtener los valores de los campos de texto
-                String bookIdText = bookId.getText(); // Change variable name
+                String bookIdText = bookId.getText();
                 String title = titleField.getText();
                 String author = authorField.getText();
                 String genre = genreField.getText();
-                Date year = null; // Inicializar year como null
+                int year = Integer.parseInt(yearField.getText());
 
-                // Obtener el año del campo de texto y convertirlo a Date
-                String yearText = yearField.getText();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy"); // Formato de año
-                try {
-                    year = dateFormat.parse(yearText); // Intentar parsear el año
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
-                    // Manejar el error de parseo (puede mostrar un mensaje de error)
-                }
-
+                // Crear un nuevo libro
                 Book newBook = new Book(bookIdText, title, author, genre, year);
 
                 // Insertar el nuevo libro en la base de datos
                 database.insertBook(newBook);
 
                 // Limpiar los campos de texto
-                bookId.setText(""); // Clear bookId field
+                bookId.setText("");
                 titleField.setText("");
                 authorField.setText("");
                 genreField.setText("");
@@ -213,10 +291,10 @@ class LibraryGUI {
                 // Obtener los valores de los campos de texto
                 String username = usernameField.getText();
                 String lastname = lastnameField.getText();
-                String iduser = iduserField.getText();
+                String id = iduserField.getText();
 
                 // Crear un nuevo usuario
-                User newUser = new User(username, lastname, iduser);
+                User newUser = new User(id, username, lastname);
 
                 // Insertar el nuevo usuario en la base de datos
                 userDatabase.insertUser(newUser);
@@ -246,26 +324,45 @@ class LibraryGUI {
         insertItem = new JMenuItem("Insertar libro");
         updateItem = new JMenuItem("Actualizar libro");
         viewBooksItem = new JMenuItem("Ver libros");
-        viewLoansItem = new JMenuItem("Ver préstamos");
+
+        loanMenu = new JMenu("Préstamos");
+        searchLoanItem = new JMenuItem("Buscar préstamo");
+        insertLoanItem = new JMenuItem("Insertar préstamo");
+        deleteLoanItem = new JMenuItem("Eliminar préstamo");
+        viewLoansItem = new JMenuItem("Ver préstamos ");
 
         // Agregar elementos al menú
         fileMenu.add(exitItem);
+
+
+        fileMenu.add(exitItem);
+        viewMenu.add(searchItem);
+        viewMenu.add(insertItem);
+        viewMenu.add(updateItem);
+        viewMenu.add(viewBooksItem);
 
         userMenu.add(searchUserItem);
         userMenu.add(insertUserItem);
         userMenu.add(updateUserItem);
         userMenu.add(viewUsersItem);
 
-        viewMenu.add(searchItem);
-        viewMenu.add(insertItem);
-        viewMenu.add(updateItem);
-        viewMenu.add(viewBooksItem);
-        viewMenu.add(viewLoansItem);
+        returnItem = new JMenuItem("Devolver préstamo");
 
-        // Agregar menú al menú principal
+
+
+        fileMenu.add(exitItem);
+        loanMenu.add(searchLoanItem);
+        loanMenu.add(insertLoanItem);
+        loanMenu.add(deleteLoanItem);
+        loanMenu.add(viewLoansItem);
+        loanMenu.add(returnItem);
+
+
         menuBar.add(fileMenu);
         menuBar.add(userMenu);
         menuBar.add(viewMenu);
+        menuBar.add(loanMenu);
+
         frame.setJMenuBar(menuBar);
 
         // Action listeners para los elementos del menú
@@ -308,17 +405,38 @@ class LibraryGUI {
         viewLoansItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                cardLayout.show(cards, "Registrar préstamo"); // Cambiar al panel de préstamos
+                // Obtener todos los préstamos de la base de datos
+                ListNodeLoan allLoans = loanDatabase.getAllLoans();
+
+                // Mostrar los préstamos en la tabla correspondiente
+                displayLoans(allLoans);
+            }
+        });
+
+        insertLoanItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Cambiar a la vista de inserción de préstamos
+                cardLayout.show(cards, "Registrar préstamo");
+            }
+        });
+        returnItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cards, "Devolver préstamo");
             }
         });
 
         viewUsersItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ListNodeUser allUsers = userDatabase.getAlluser();
+                ListNodeUser allUsers = userDatabase.getAllUsers();
                 displayUsers(allUsers);
             }
         });
+
+        // Mostrar GUI
+        frame.setVisible(true);
     }
 
     private void displayUsers(ListNodeUser users) {
@@ -350,6 +468,7 @@ class LibraryGUI {
 
     private void displayBooks(ListNode books) {
         DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
         model.addColumn("Título");
         model.addColumn("Autor");
         model.addColumn("Género");
@@ -358,7 +477,7 @@ class LibraryGUI {
         ListNode current = books;
         while (current != null) {
             Book book = current.getBook();
-            model.addRow(new Object[]{book.getTitle(), book.getAuthor(), book.getGenre(), book.getYear()});
+            model.addRow(new Object[]{book.getId(), book.getTitle(), book.getAuthor(), book.getGenre(), book.getYear()});
             current = current.getNext();
         }
 
@@ -376,7 +495,57 @@ class LibraryGUI {
         cardLayout.show(cards, "Consultar libros");
     }
 
+
+
+
+
+    private void displayLoans(ListNodeLoan loans) {
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("User ID");
+        model.addColumn("Book ID");
+        model.addColumn("Loan Date");
+        model.addColumn("Return Date");
+
+        ListNodeLoan current = loans;
+        while (current != null) {
+            if (current.getLoan() != null) {
+                Loan loan = current.getLoan();
+                model.addRow(new Object[]{loan.getUser().getId(), loan.getBook().getId(), loan.getLoanDate(), loan.getReturnDate()});
+            }
+            current = current.getNext();
+        }
+
+        // Crear o actualizar tabla de préstamos
+        if (loanTable == null) {
+            loanTable = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(loanTable);
+            viewLoansPanel = new JPanel(new BorderLayout());
+            viewLoansPanel.add(scrollPane, BorderLayout.CENTER);
+            cards.add(viewLoansPanel, "Consultar préstamos");
+        } else {
+            loanTable.setModel(model);
+        }
+
+        cardLayout.show(cards, "Consultar préstamos");
+    }
+
+    public static void main(String[] args) {
+
+        LibraryGUI libraryGUI = new LibraryGUI();
+
+        // Inicializar la base de datos de usuarios
+        UserDatabase userDatabase = new UserDatabase();
+        userDatabase.initializeUsers();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new LibraryGUI();
+
+            }
+        });
+    }
+
     public void showGUI() {
-        frame.setVisible(true);
+
     }
 }

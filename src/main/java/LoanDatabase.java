@@ -1,28 +1,52 @@
-class LoanDatabase {
-    private LoanNode root;
+public class LoanDatabase {
+    private ListNodeLoan head;
 
-    public LoanDatabase() {
-        root = null;
-    }
-
+    // Método para insertar un préstamo
     public void insertLoan(Loan loan) {
-        root = insertRecursive(root, loan);
+        ListNodeLoan newNode = new ListNodeLoan(loan);
+        if (head == null) {
+            head = newNode;
+        } else {
+            ListNodeLoan current = head;
+            while (current.getNext() != null) {
+                current = current.getNext();
+            }
+            current.setNext(newNode);
+        }
     }
 
-    private LoanNode insertRecursive(LoanNode node, Loan loan) {
-        if (node == null) {
-            return new LoanNode(loan);
+    // Método para devolver un préstamo dado su ID
+    public boolean returnLoan(String loanId) {
+        if (head == null) {
+            return false; // No hay préstamos en la base de datos
         }
 
-        int comparison = loan.compareTo(node.getLoan());
-        if (comparison < 0) {
-            node.setLeft(insertRecursive(node.getLeft(), loan));
-        } else if (comparison > 0) {
-            node.setRight(insertRecursive(node.getRight(), loan));
+        ListNodeLoan current = head;
+        ListNodeLoan prev = null;
+
+        // Buscar el préstamo con el ID dado
+        while (current != null && !current.getLoan().getId().equals(loanId)) {
+            prev = current;
+            current = current.getNext();
+        }
+
+        // Si se encontró el préstamo
+        if (current != null) {
+            // Eliminar el nodo del préstamo
+            if (prev == null) {
+                // El préstamo es el primer nodo
+                head = head.getNext();
+            } else {
+                prev.setNext(current.getNext());
+            }
+            return true; // Devolución exitosa
         } else {
-
+            return false; // No se encontró el préstamo con ese ID
         }
+    }
 
-        return node;}
-
+    // Método para obtener todos los préstamos
+    public ListNodeLoan getAllLoans() {
+        return head; // Retorna la lista de todos los préstamos
+    }
 }

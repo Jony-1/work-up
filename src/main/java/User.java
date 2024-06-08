@@ -1,41 +1,27 @@
-class User {
+public class User {
+    private String idUser;
     private String username;
     private String lastname;
-    private String iduser;
 
-
-    public User(String username, String lastname, String iduser) {
+    public User(String idUser, String username, String lastname) {
+        this.idUser = idUser;
         this.username = username;
         this.lastname = lastname;
-        this.iduser = iduser;
+    }
 
+    public String getIdUser() {
+        return idUser;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getLastname() {
         return lastname;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-
+    public <T> Comparable<T> getId() {
+        return null;
     }
-
-    public String getIdUser() {
-        return iduser;
-    }
-
-    public void setgetIdUser(String iduser) {
-        this.iduser = iduser;
-
-    }
-
-
 }
